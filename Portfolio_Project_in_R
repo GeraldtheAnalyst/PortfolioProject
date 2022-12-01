@@ -1,0 +1,544 @@
+Identifying trends using historical bike trip data
+A Case Study
+
+Title: Identifying trends using historical bike trip data
+
+Output: html_notebook
+
+Author: Gerald Asamoah Okine
+
+Scenario
+You are a junior data analyst working in the marketing analyst team at Cyclistic, a bike-share company in Chicago. The director of marketing believes the company’s future success depends on maximizing the number of annual memberships. Therefore, your team wants to understand how casual riders and annual members use Cyclistic bikes differently. From these insights, your team will design a new marketing strategy to convert casual riders into annual members. But first, Cyclistic executives must approve your recommendations, so they must be backed up with compelling data insights and professional data visualizations.
+
+About the company
+In 2016, Cyclistic launched a successful bike-share offering. Since then, the program has grown to a fleet of 5,824 bicycles that are geo-tracked and locked into a network of 692 stations across Chicago. The bikes can be unlocked from one station and returned to any other station in the system anytime. Until now, Cyclistic’s marketing strategy relied on building general awareness and appealing to broad consumer segments. One approach that helped make these things possible was the flexibility of its pricing plans: single-ride passes, full-day passes, and annual memberships. Customers who purchase single-ride or full-day passes are referred to as casual riders. Customers who purchase annual memberships are Cyclistic members. Cyclistic’s finance analysts have concluded that annual members are much more profitable than casual riders. Although the pricing flexibility helps Cyclistic attract more customers, Moreno believes that maximizing the number of annual members will be key to future growth. Rather than creating a marketing campaign that targets all-new customers, Moreno believes there is a very good chance to convert casual riders into members. She notes that casual riders are already aware of the Cyclistic program and have chosen Cyclistic for their mobility needs. Moreno has set a clear goal: Design marketing strategies aimed at converting casual riders into annual members. In order to do that, however, the marketing analyst team needs to better understand how annual members and casual riders differ, why casual riders would buy a membership, and how digital media could affect their marketing tactics. Moreno and her team are interested in analyzing the Cyclistic historical bike trip data to identify trends.
+
+Ask - Understanding the Problem
+Objective
+
+Design marketing strategies targeted at converting casual riders into annual members.
+
+Goal
+
+Identify the difference in ways casual riders and annual riders at Cyclistic use bikes.
+
+Key Stakeholders
+
+Lily Moreno, Marketing Director
+
+Cyclistic Executive Team
+
+The Cyclistic Marketing Analytics Team
+
+Cyclistic aims to design marketing strategies targeted at converting casual riders into annual members. In order to do this, the following questions must be analyzed:
+
+How do annual members and casual riders use Cyclistic bikes differently?
+
+Why would casual riders buy Cyclistic annual memberships?
+
+How can Cyclistic use digital media to influence casual riders to become members?
+
+In this analysis, we have been tasked by the Director of Marketing, Lily Moreno to answer only the first question listed above.
+
+Preparing Data
+This case study uses Cyclistic’s historical trip data (previous 12 months) to analyze and identify trends. 
+
+The data has been made available by Motivate International Inc. under and open license. The data can be downloaded here.
+
+This data is reliable, original, comprehensive and current as it is internally collected and stored safely by Cyclistic from August 2021 to July 2022. 
+
+Personally identifiable information such as credit card numbers has been removed because of data-privacy issues.
+
+The data selected for use covers the last 12 months from August 2021 to July 2022. 
+
+Each month has a separate dataset. The datasets are organized in tabular format and have 13 identical columns.
+
+Combined, the datasets have 4073561 rows. 
+
+The member_casual column will allow me to group, aggregate and compare trends between casual riders and member riders
+
+Reliability - The data is unbiased and complete.
+
+Original - The source of the data is first party.
+
+Comprehensive - There is data on ‘Usertype’, and ‘Start time’ and ‘End time’ of trips as well as other fields to perform a sufficient analysis.
+
+Current - The data is the latest 12 months available.
+
+Cited -The data has been made available by Motivate International Inc. under this license.
+
+Sorting and Filtering the Data
+
+Installing packages
+
+install.packages(“tidyverse”)
+
+install.packages(“modeest”)
+
+Loading packages
+
+library(tidyverse) 
+## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+## ✔ ggplot2 3.3.6      ✔ purrr   0.3.5 
+## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
+## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
+## ✔ readr   2.1.3      ✔ forcats 0.5.2 
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+library(dplyr)
+library(ggplot2) 
+library(lubridate) 
+## 
+## Attaching package: 'lubridate'
+## 
+## The following objects are masked from 'package:base':
+## 
+##     date, intersect, setdiff, union
+library(readxl) 
+library(readr) 
+library(modeest) 
+## Registered S3 method overwritten by 'rmutil':
+##   method         from
+##   print.response httr
+library(tidyr)
+Uploading the Datasets
+
+aug_2021 <- read_csv("202108-divvy-tripdata.csv")
+## Rows: 804352 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (7): ride_id, rideable_type, start_station_name, start_station_id, end_...
+## dbl  (4): start_lat, start_lng, end_lat, end_lng
+## dttm (2): started_at, ended_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+sep_2021 <- read_csv("202109-divvy-tripdata.csv")
+## Rows: 756147 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (7): ride_id, rideable_type, start_station_name, start_station_id, end_...
+## dbl  (4): start_lat, start_lng, end_lat, end_lng
+## dttm (2): started_at, ended_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+oct_2021 <- read_csv("202110-divvy-tripdata.csv")
+## Rows: 631226 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (7): ride_id, rideable_type, start_station_name, start_station_id, end_...
+## dbl  (4): start_lat, start_lng, end_lat, end_lng
+## dttm (2): started_at, ended_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+nov_2021 <- read_csv("202111-divvy-tripdata.csv")
+## Rows: 359978 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (7): ride_id, rideable_type, start_station_name, start_station_id, end_...
+## dbl  (4): start_lat, start_lng, end_lat, end_lng
+## dttm (2): started_at, ended_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+dec_2021 <- read_csv("202112-divvy-tripdata.csv")
+## Rows: 247540 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (7): ride_id, rideable_type, start_station_name, start_station_id, end_...
+## dbl  (4): start_lat, start_lng, end_lat, end_lng
+## dttm (2): started_at, ended_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+jan_2022 <- read_csv("202201-divvy-tripdata.csv")
+## Rows: 103770 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (7): ride_id, rideable_type, start_station_name, start_station_id, end_...
+## dbl  (4): start_lat, start_lng, end_lat, end_lng
+## dttm (2): started_at, ended_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+feb_2022 <- read_csv("202202-divvy-tripdata.csv")
+## Rows: 115609 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (7): ride_id, rideable_type, start_station_name, start_station_id, end_...
+## dbl  (4): start_lat, start_lng, end_lat, end_lng
+## dttm (2): started_at, ended_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+mar_2022 <- read_csv("202203-divvy-tripdata.csv")
+## Rows: 284042 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (7): ride_id, rideable_type, start_station_name, start_station_id, end_...
+## dbl  (4): start_lat, start_lng, end_lat, end_lng
+## dttm (2): started_at, ended_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+apr_2022 <- read_csv("202204-divvy-tripdata.csv")
+## Rows: 371249 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (7): ride_id, rideable_type, start_station_name, start_station_id, end_...
+## dbl  (4): start_lat, start_lng, end_lat, end_lng
+## dttm (2): started_at, ended_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+may_2022 <- read_csv("202205-divvy-tripdata.csv")
+## Rows: 634858 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (7): ride_id, rideable_type, start_station_name, start_station_id, end_...
+## dbl  (4): start_lat, start_lng, end_lat, end_lng
+## dttm (2): started_at, ended_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+jun_2022 <- read_csv("202206-divvy-tripdata.csv")
+## Rows: 769204 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (7): ride_id, rideable_type, start_station_name, start_station_id, end_...
+## dbl  (4): start_lat, start_lng, end_lat, end_lng
+## dttm (2): started_at, ended_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+jul_2022 <- read_csv("202207-divvy-tripdata.csv")
+## Rows: 823488 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (7): ride_id, rideable_type, start_station_name, start_station_id, end_...
+## dbl  (4): start_lat, start_lng, end_lat, end_lng
+## dttm (2): started_at, ended_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+Processing data for analysis
+Cleaning & Transforming data
+
+There are no data type inconsistencies among each of the 12 dataframes, so it is ready to be aggregated. 
+
+The R code below bind all rows of each dataframe into 1 large data frame, ready for processing.
+
+all_trips_raw <- bind_rows(aug_2021,sep_2021,oct_2021,nov_2021,dec_2021,jan_2022,feb_2022,mar_2022,apr_2022,may_2022,jun_2022,jul_2022)
+Adding columns to separate started_at column values into date, day, month, year, and day of week.
+
+all_trips_raw$date <- as.Date(all_trips_raw$started_at)
+all_trips_raw$month <- format(as.Date(all_trips_raw$date), "%m")
+all_trips_raw$day <- format(as.Date(all_trips_raw$date), "%d")
+all_trips_raw$year <- format(as.Date(all_trips_raw$date), "%Y")
+all_trips_raw$day_of_week <- format(as.Date(all_trips_raw$date), "%A")
+Changed the column names to more fitting names, to improve ease of analysis.
+
+all_trips_raw <- all_trips_raw %>% 
+  rename(trip_id = ride_id, ride_type = rideable_type, start_time = started_at, end_time = ended_at, usertype = member_casual)
+Removed unnecessary columns for our analysis (start_lat,end_lat,start_lng,end_lng), and also added column, ride_length, that calculates the length of a ride in seconds.
+
+all_trips_raw$ride_length <- as.numeric(difftime(all_trips_raw$end_time,all_trips_raw$start_time))
+
+all_trips_raw <- all_trips_raw %>%
+    select(-c(start_lat,start_lng,end_lat,end_lng))
+Removing all NA row
+
+all_trips_drop_na <- drop_na(all_trips_raw)
+all_trips <- all_trips_drop_na
+Inspecting the data frame
+
+summary(all_trips)
+##    trip_id           ride_type           start_time                    
+##  Length:4629230     Length:4629230     Min.   :2021-08-01 00:00:04.00  
+##  Class :character   Class :character   1st Qu.:2021-09-24 08:17:45.75  
+##  Mode  :character   Mode  :character   Median :2022-02-11 17:14:55.00  
+##                                        Mean   :2022-01-30 14:23:23.00  
+##                                        3rd Qu.:2022-06-06 01:10:14.00  
+##                                        Max.   :2022-07-31 23:59:29.00  
+##     end_time                      start_station_name start_station_id  
+##  Min.   :2021-08-01 00:03:30.00   Length:4629230     Length:4629230    
+##  1st Qu.:2021-09-24 08:30:59.25   Class :character   Class :character  
+##  Median :2022-02-11 17:25:54.50   Mode  :character   Mode  :character  
+##  Mean   :2022-01-30 14:41:53.27                                        
+##  3rd Qu.:2022-06-06 01:48:22.50                                        
+##  Max.   :2022-08-01 13:26:03.00                                        
+##  end_station_name   end_station_id       usertype              date           
+##  Length:4629230     Length:4629230     Length:4629230     Min.   :2021-08-01  
+##  Class :character   Class :character   Class :character   1st Qu.:2021-09-24  
+##  Mode  :character   Mode  :character   Mode  :character   Median :2022-02-11  
+##                                                           Mean   :2022-01-29  
+##                                                           3rd Qu.:2022-06-06  
+##                                                           Max.   :2022-07-31  
+##     month               day                year           day_of_week       
+##  Length:4629230     Length:4629230     Length:4629230     Length:4629230    
+##  Class :character   Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+##                                                                             
+##                                                                             
+##                                                                             
+##   ride_length     
+##  Min.   :  -7745  
+##  1st Qu.:    384  
+##  Median :    673  
+##  Mean   :   1110  
+##  3rd Qu.:   1211  
+##  Max.   :2497750
+Creating a new version of the data frame by removing all negative values.
+
+all_trips_2 <- all_trips[!(all_trips$ride_length < 0),]
+summary(all_trips_2)
+##    trip_id           ride_type           start_time                    
+##  Length:4629119     Length:4629119     Min.   :2021-08-01 00:00:04.00  
+##  Class :character   Class :character   1st Qu.:2021-09-24 08:18:19.50  
+##  Mode  :character   Mode  :character   Median :2022-02-11 17:19:14.00  
+##                                        Mean   :2022-01-30 14:26:00.58  
+##                                        3rd Qu.:2022-06-06 01:16:12.50  
+##                                        Max.   :2022-07-31 23:59:29.00  
+##     end_time                      start_station_name start_station_id  
+##  Min.   :2021-08-01 00:03:30.00   Length:4629119     Length:4629119    
+##  1st Qu.:2021-09-24 08:31:09.50   Class :character   Class :character  
+##  Median :2022-02-11 17:29:58.00   Mode  :character   Mode  :character  
+##  Mean   :2022-01-30 14:44:30.91                                        
+##  3rd Qu.:2022-06-06 01:54:02.50                                        
+##  Max.   :2022-08-01 13:26:03.00                                        
+##  end_station_name   end_station_id       usertype              date           
+##  Length:4629119     Length:4629119     Length:4629119     Min.   :2021-08-01  
+##  Class :character   Class :character   Class :character   1st Qu.:2021-09-24  
+##  Mode  :character   Mode  :character   Mode  :character   Median :2022-02-11  
+##                                                           Mean   :2022-01-29  
+##                                                           3rd Qu.:2022-06-06  
+##                                                           Max.   :2022-07-31  
+##     month               day                year           day_of_week       
+##  Length:4629119     Length:4629119     Length:4629119     Length:4629119    
+##  Class :character   Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+##                                                                             
+##                                                                             
+##                                                                             
+##   ride_length     
+##  Min.   :      0  
+##  1st Qu.:    384  
+##  Median :    673  
+##  Mean   :   1110  
+##  3rd Qu.:   1211  
+##  Max.   :2497750
+Identifying the outliers and saving them to their own data frame
+
+outliers <- boxplot(all_trips_2$ride_length, plot = FALSE)$out
+This data frame will be excluded from our dataset. The which() function tells us the rows in which the outliers exist, these rows are then removed from our dataset. However, before removing them, we store all_trips_2 in a variable to ensure we don’t lose the dataset.
+
+x <- all_trips_2
+x <- x[-which(x$ride_length %in% outliers),]
+All significant outliers is now removed of and we can now proceed to our analysis
+
+Phase 4: Conduct Analysis
+Analysis (ride_length)
+
+summary(x$ride_length)
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     0.0   365.0   622.0   766.8  1042.0  2451.0
+Comparing members and casual users
+
+aggregate(x$ride_length/60 ~ x$usertype, FUN = mean)
+x$usertype
+<chr>
+x$ride_length/60
+<dbl>
+casual	15.12494
+member	11.28680
+2 rows
+aggregate(x$ride_length/60 ~ x$usertype, FUN = median)
+x$usertype
+<chr>
+x$ride_length/60
+<dbl>
+casual	12.933333
+member	8.966667
+2 rows
+Using the statistical mode function, we see that the most common day for renting bikes is Saturday for casual riders and Wednesday for annual members.
+
+aggregate(x$day_of_week ~ x$usertype, FUN = mfv)
+x$usertype
+<chr>
+x$day_of_week
+<chr>
+casual	Saturday
+member	Tuesday
+2 rows
+Observing average ride length by each day for member vs casual user types.
+
+#Outputs day_of_week column in proper order
+x$day_of_week <- ordered(x$day_of_week, levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+#Outputs average ride_length based on usertype and day of the week
+aggregate(x$ride_length/60 ~ x$usertype + x$day_of_week, FUN = mean)
+x$usertype
+<chr>
+x$day_of_week
+<ord>
+x$ride_length/60
+<dbl>
+casual	Sunday	16.32197
+member	Sunday	12.34623
+casual	Monday	15.05507
+member	Monday	11.01639
+casual	Tuesday	13.93136
+member	Tuesday	10.76277
+casual	Wednesday	13.92665
+member	Wednesday	10.88140
+casual	Thursday	14.11961
+member	Thursday	10.96838
+Next12Previous
+1-10 of 14 rows
+Now, we analyze the number of rides by user type and weekday and visualize it
+
+x %>%
+    mutate(weekday = wday(start_time, label = TRUE)) %>%
+        group_by(usertype, weekday) %>%
+            summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>%
+                arrange(usertype, weekday) %>%
+                    ggplot(aes(x = weekday, y = number_of_rides, fill = usertype)) + geom_col(position = "dodge")
+## `summarise()` has grouped output by 'usertype'. You can override using the
+## `.groups` argument.
+
+
+`summarize()` has grouped output by ‘usertype’. You can override using the `.groups` argument.
+
+Analyzing average duration by user type and weekday
+
+x %>%
+    mutate(weekday = wday(start_time, label = TRUE)) %>%
+        group_by(usertype, weekday) %>%
+            summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>%
+                arrange(usertype, weekday) %>%
+                    ggplot(aes(x = weekday, y = average_duration, fill = usertype)) + geom_col(position = "dodge")
+## `summarise()` has grouped output by 'usertype'. You can override using the
+## `.groups` argument.
+
+
+`summarize()` has grouped output by ‘usertype’. You can override using the `.groups` argument.
+
+Remarks
+
+Casual riders average longer rides than annual members on any given day of the week. This is most likely explained by the assumption that annual members use Cyclistic rentals for shorter, direct commutes to work or school, whereas casual riders will use bikes recreational.
+
+Casual riders use Cyclistic rentals much more on weekends (Saturday, Sunday) compared to weekdays, and vice-versa for annual members, further supporting the first observation made.
+
+Share Findings
+Visualizations
+
+Using effective visualizations to support our observation
+
+## ----- number of rides by rider type ------------
+x %>%
+    mutate(weekday = wday(start_time, label = TRUE)) %>%
+        group_by(usertype, weekday) %>%
+            summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>%
+                arrange(usertype, weekday) %>%
+                    ggplot(aes(x = weekday, y = number_of_rides, fill = usertype)) + geom_col(position = "dodge") + labs(title = "Table 1: Number of Rides by Day of Week and Rider Type") + ylab("Number of Rides (1e+05 = 100,000)") + xlab("Day of Week")
+## `summarise()` has grouped output by 'usertype'. You can override using the
+## `.groups` argument.
+
+
+## ----- average ride time by rider type ----------
+x %>%
+    mutate(weekday = wday(start_time, label = TRUE)) %>%
+        group_by(usertype, weekday) %>%
+            summarise(number_of_rides = n(), average_duration = mean(ride_length/60)) %>%
+                arrange(usertype, weekday) %>%
+                    ggplot(aes(x = weekday, y = average_duration, fill = usertype)) + geom_col(position = "dodge") + labs(title = "Table 2: Average Ride Duration by Day and Rider Type") + ylab("Average Duration (minutes) ") + xlab("Day of Week")
+## `summarise()` has grouped output by 'usertype'. You can override using the
+## `.groups` argument.
+
+
+## ----- Number of rides by bike type and rider type ---------
+x %>% 
+    group_by(usertype, ride_type) %>%
+        summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>%
+            arrange(usertype, ride_type) %>%
+                ggplot(aes(x = ride_type, y = number_of_rides, fill = usertype)) + geom_col(position = "dodge") + labs(title = "Table 3: Number of Rides by Bike Type and Rider Type") + ylab("Number of Rides") + xlab("Bike Type")
+## `summarise()` has grouped output by 'usertype'. You can override using the
+## `.groups` argument.
+
+
+## ----- number of rides by day and bike type --------------
+x %>% 
+    mutate(weekday = wday(start_time, label = TRUE)) %>%
+        group_by(ride_type, weekday) %>%
+            summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>%
+                arrange(ride_type, weekday) %>%
+                    ggplot(aes(x = weekday, y = number_of_rides, fill = ride_type)) + geom_col(position = "dodge") + labs(title = "Table 4: Number of Rides by Day and Bike Type") + ylab("Number of Rides (1e+05 = 100,000)") + xlab("Day of Week")
+## `summarise()` has grouped output by 'ride_type'. You can override using the
+## `.groups` argument.
+
+
+## ----- average ride time by bike type ----------
+x %>% 
+    mutate(weekday = wday(start_time, label = TRUE)) %>%
+        group_by(ride_type, weekday) %>%
+            summarise(number_of_rides = n(), average_duration = mean(ride_length/60)) %>%
+                arrange(ride_type, weekday) %>%
+                    ggplot(aes(x = weekday, y = average_duration, fill = ride_type)) + geom_col(position = "dodge") + labs(title = "Table 5: Average Ride Duration by Day and Bike Type") + ylab("Average Duration (minutes)") + xlab("Day of Week")
+## `summarise()` has grouped output by 'ride_type'. You can override using the
+## `.groups` argument.
+
+
+## ----- number of rides by month and user type ------------
+x %>% 
+   group_by(usertype, month) %>%
+        summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>%
+            arrange(usertype, month) %>%
+                ggplot(aes(x = month, y = number_of_rides, group = usertype)) + geom_line(aes(color = usertype)) + geom_point() + labs(title = "Table 6: Number of Rides by Month and Rider Type") + ylab("Number of Rides (1e+05 = 100,000)") + xlab("Month")
+## `summarise()` has grouped output by 'usertype'. You can override using the
+## `.groups` argument.
+
+
+Observations
+
+On average, each bike ride lasts about 13.2 minutes.
+
+Casual riders average 15.1 minutes per ride
+
+Members average 11.3 minutes per ride
+
+The most popular day to rent a bike differs between user types.
+
+Casual riders rent bikes most often on Saturdays
+
+Members rent most often on Tuesdays
+
+Weekends are by far the most popular rental days for casual riders, whereas weekday bike rentals are from members by a significant margin. (Table 1)
+
+Member bike rentals are much more consistent throughout the week, whereas casual riders peak on Saturday and Sunday, with a steep drop-off Monday-Friday. (Table 1)
+
+On any given day, ride duration are on average, longer for casual riders as opposed to members. (Table 2)
+
+Classic bikes are the overwhelming favorite bike-type from casual riders and members, in terms of number of rentals. (Table 3, Table 4)
+
+Docked bikes average longer ride times than both classic and electric bikes, on any given day of the week. (Table 5)
+
+The number of rentals follow a seasonal pattern. The amount of rentals peak in the Summer months, between July and August, and then a steep decline into the Fall and Winter months, with the lowest number of rentals occurring in February for both casual riders and members. 
+
+Act (Recommendations)
+Suggestions based on our analysis 
+
+Annual members rent most often on weekdays, most likely due to work or school commutes. This is supported by the small variation in average ride duration for annual members on weekdays. (Table 2)
+
+Regarding casual riders, as seen in Table 1, casual rides are relatively low on weekdays, with a small increase on Friday and a large peak on Saturday and Sunday. This suggests most casual rides are done for leisure and recreational reasons. Table 2 further supports our assumptions due to the significantly longer ride duration among casual riders, especially on weekends.
+
+The following three recommendations for a marketing strategy aimed at converting casual riders to annual members are as follows:
+
+We recommend more marketing campaigns and advertisements to be done in summer since it’s peak usage season for both members and casual riders.
+
+Most of rides takes place during saturday and sunday for members as well as casual riders so we have to run advertise campaign on those days such that more casual riders will get to know about the program.
+
+Offer sightseeing routes, locations of interest and much tourist appeal for annual members. Market the benefits to appeal to all riders.
+
+Partner with local vendors for discounts on their products or services if proof is shown of annual membership. Select vendors related to activities and behaviors most relevant to leisure and recreation on weekends.
