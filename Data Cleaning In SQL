@@ -1,0 +1,140 @@
+## Data Cleaning In SQL
+--SELECT *
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data` 
+
+
+## Standardize Date Format
+
+--SELECT SaleDateConverted CONVERT(Date,SaleDate)
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data` 
+
+--UPDATE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--SET SaleDate = CONVERT(DATE,SaleDate)
+
+--ALTER TABLE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--ADD SaleDateConverted Date;
+
+--UPDATE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--SET SaleDateConverted = CONVERT(Date,SaleDate)
+
+
+## Populate Property Address Data 
+
+--SELECT *
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--WHERE PropertyAddress IS NULL 
+--ORDER BY ParcelID
+
+--SELECT a.ParcelID, a.PropertyAddress, b.ParcelID, b.PropertyAddress, IFNULL(a.PropertyAddress,b.PropertyAddress)
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data` a
+--JOIN `dark-yeti-359713.Portfolio.Nashville_housing_data` b
+--ON a.ParcelID = b.ParcelID
+--AND a.(UniqueID_) <> b.(UniqueID_)
+--WHERE a.PropertyAddress IS NULL
+
+--UPDATE a
+--SET PropertyAddress = IFNULL(a.PropertyAddress,b.PropertyAddress)
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data` a
+--JOIN `dark-yeti-359713.Portfolio.Nashville_housing_data` b
+--ON a.ParcelID = b.ParcelID
+--AND a.(UniqueID_) <> b.(UniqueID_)
+--WHERE a.PropertyAddress IS NULL
+
+
+## Breaking Down Address Into Individual Columns
+
+--SELECT PropertyAddress
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--WHERE PropertyAddress IS NULL 
+--ORDER BY ParcelID
+
+--SELECT 
+--SUBSTRING(PropertyAddress, 1, CHARINDEX[',', PropertyAdress ]-1) AS Address
+--SUBSTRING(PropertyAddress, 1, CHARINDEX[',', PropertyAdress ]+1, LEN (PropertyAddress)) AS Address
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data`
+
+--ALTER TABLE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--ADD PropertySplitAddress NVarchar(255);
+
+--UPDATE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--SET PropertySplitAddress = SUBSTRING(PropertyAddress, 1, CHARINDEX[',', PropertyAdress ]-1)
+
+--ALTER TABLE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--ADD PropertySplitCity Nvarchar(255);
+
+--UPDATE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--SET PropertySplitCity = SUBSTRING(PropertyAddress, 1, CHARINDEX[',', PropertyAdress ]+1, LEN (PropertyAddress)
+
+--SELECT
+--PARSENAME(REPLACE(OwnerAddress, ",","."),3),
+--PARSENAME(REPLACE(OwnerAddress, ",","."),2),
+--PARSENAME(REPLACE(OwnerAddress, ",","."),1)
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data`
+
+--ALTER TABLE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--ADD OwnerSplitAddress NVarchar(255);
+
+--UPDATE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--SET OwnerSplitAddress = PARSENAME(REPLACE(OwnerAddress, ",","."),3)
+
+--ALTER TABLE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--ADD OwnerSplitCity Nvarchar(255);
+
+--UPDATE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--SET OwnerSplitCity = PARSENAME(REPLACE(OwnerAddress, ",","."),2)
+
+--ALTER TABLE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--ADD OwnerSplitState Nvarchar(255);
+
+--UPDATE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--SET PropertySplitState = PARSENAME(REPLACE(OwnerAddress, ",","."),1)
+
+
+## Change Y and N to Yes and No in "Sold as Vacant" field
+
+--SELECT DISTINCT(SoldAsVacant), COUNT(SoldAsVacant)
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--GROUP BY SoldAsVacant 
+--ORDER BY 2
+
+
+
+--SELECT SoldAsVacant,
+--CASE WHEN SoldAsVacant = 'Y' THEN 'Yes'
+--WHEN SoldAsVacant = 'N' THEN 'No'
+--ELSE SoldAsVacant
+--END
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data`
+ 
+
+--UPDATE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--SET SoldAsVacant = CASE WHEN SoldAsVacant = 'Y' THEN 'Yes'
+--WHEN SoldAsVacant = 'N' THEN 'No'
+--ELSE SoldAsVacant
+--END
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data`
+
+
+## Remove Duplicates
+
+
+--WITH RowNumCTE AS(
+--SELECT *,
+--ROW_NUMBER() OVER (PARTITION BY 
+--ParcelID, PropertyAddress, SalePrice, SaleDate, LegalReference
+--ORDER BY UniqueID_) row_num
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data`
+--ORDER BY ParcelID )
+
+--SELECT *
+--FROM RowNumCTE
+--WHERE row_num > 1
+
+
+## Delete Unused Columns
+
+--SELECT *
+--FROM `dark-yeti-359713.Portfolio.Nashville_housing_data`
+
+ALTER TABLE `dark-yeti-359713.Portfolio.Nashville_housing_data`
+DROP COLUMN OwnerAddress, TaxDistrict, PropertyAddress, SalesDate
